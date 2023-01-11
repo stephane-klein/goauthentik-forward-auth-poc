@@ -1,0 +1,75 @@
+# Come from https://github.com/goauthentik/authentik/blob/main/docker-compose.yml
+version: '3.8'
+services:
+  postgresql:
+    image: docker.io/library/postgres:15
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 5s
+    volumes:
+      - ./volumes/postgres/:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+
+  redis:
+    image: docker.io/library/redis:7
+    command: --save 60 1 --loglevel warning
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    volumes:
+      - ./volumes/redis/:/data
+
+  server:
+    image: ghcr.io/goauthentik/server:2022.12.2
+    restart: unless-stopped
+    command: server
+    depends_on:
+      - postgresql
+      - redis
+    environment:
+      AUTHENTIK_PORT_HTTP: 9000
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: postgres
+      AUTHENTIK_POSTGRESQL__NAME: postgres
+      AUTHENTIK_POSTGRESQL__PASSWORD: password
+      # pwgen -s 50 1
+      AUTHENTIK_SECRET_KEY: "uTY56qokCQC76ppJ2dD1EpHFvcwke63k14RiH2SqZ777T4P8IJ"
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "true"
+    volumes:
+      - ./volumes/media/:/media
+      - ./volumes/custom-templates/:/templates
+    ports:
+      - 9000:9000
+
+  worker:
+    image: ghcr.io/goauthentik/server:2022.12.2
+    restart: unless-stopped
+    command: worker
+    depends_on:
+      - postgresql
+      - redis
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: postgres
+      AUTHENTIK_POSTGRESQL__NAME: postgres
+      AUTHENTIK_POSTGRESQL__PASSWORD: password
+      AUTHENTIK_SECRET_KEY: "uTY56qokCQC76ppJ2dD1EpHFvcwke63k14RiH2SqZ777T4P8IJ"
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./volumes/media/:/media
+      - ./volumes/certs/:/certs
+      - ./volumes/custom-templates/:/templates
