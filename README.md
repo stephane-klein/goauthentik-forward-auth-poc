@@ -1,3 +1,7 @@
+# authentik hosting playground
+
+This repository contains a environment that allows to test [Authentik](https://goauthentik.io/) deployment.
+
 ```sh
 $ docker-compose pull
 $ docker-compose up -d
