@@ -48,6 +48,7 @@ services:
       AUTHENTIK_SECRET_KEY: "uTY56qokCQC76ppJ2dD1EpHFvcwke63k14RiH2SqZ777T4P8IJ"
       AUTHENTIK_ERROR_REPORTING__ENABLED: "true"
       AUTHENTIK_BOOTSTRAP_PASSWORD: password
+      AUTHENTIK_BOOTSTRAP_TOKEN: passwordtoken
     volumes:
       - ./volumes/media/:/media
       - ./volumes/custom-templates/:/templates
@@ -69,6 +70,8 @@ services:
       AUTHENTIK_POSTGRESQL__PASSWORD: password
       AUTHENTIK_SECRET_KEY: "uTY56qokCQC76ppJ2dD1EpHFvcwke63k14RiH2SqZ777T4P8IJ"
       AUTHENTIK_ERROR_REPORTING__ENABLED: "true"
+      AUTHENTIK_BOOTSTRAP_PASSWORD: password
+      AUTHENTIK_BOOTSTRAP_TOKEN: passwordtoken
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./volumes/media/:/media

@@ -11,3 +11,4 @@ Go to http://127.0.0.1:9000/
 
 User: `akadmin`
 Password: `password`
+API Token: `passwordtoken`
